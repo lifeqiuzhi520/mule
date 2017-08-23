@@ -11,7 +11,9 @@ import static java.lang.Integer.compare;
 import static java.lang.String.format;
 import static java.util.Optional.of;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
+
 import org.mule.runtime.api.lifecycle.Disposable;
+import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.Policy;
 import org.mule.runtime.core.api.policy.PolicyParametrization;
 import org.mule.runtime.core.api.policy.PolicyProvider;
@@ -32,12 +34,13 @@ import java.util.Optional;
 /**
  * Provides policy management and provision for Mule applications
  */
-public class MuleApplicationPolicyProvider implements ApplicationPolicyProvider, PolicyProvider, Disposable {
+public class MuleApplicationPolicyProvider implements ApplicationPolicyProvider, Disposable {
 
   private final PolicyTemplateFactory policyTemplateFactory;
   private final PolicyInstanceProviderFactory policyInstanceProviderFactory;
   private final List<RegisteredPolicyTemplate> registeredPolicyTemplates = new LinkedList<>();
   private final List<RegisteredPolicyInstanceProvider> registeredPolicyInstanceProviders = new LinkedList<>();
+  private MuleContextListener policyContextListener;
   private Application application;
 
   /**
@@ -76,7 +79,7 @@ public class MuleApplicationPolicyProvider implements ApplicationPolicyProvider,
       }
 
       ApplicationPolicyInstance applicationPolicyInstance = policyInstanceProviderFactory
-          .create(application, registeredPolicyTemplate.get().policyTemplate, parametrization);
+          .create(application, registeredPolicyTemplate.get().policyTemplate, parametrization, policyContextListener);
 
       applicationPolicyInstance.initialise();
 
@@ -170,6 +173,11 @@ public class MuleApplicationPolicyProvider implements ApplicationPolicyProvider,
 
       registeredPolicyTemplates.clear();
     }
+  }
+
+  @Override
+  public void setPolicyContextListener(MuleContextListener policyContextListener) {
+    this.policyContextListener = policyContextListener;
   }
 
   public void setApplication(Application application) {

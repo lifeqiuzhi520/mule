@@ -7,6 +7,8 @@
 
 package org.mule.runtime.module.deployment.impl.internal.policy;
 
+import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.PolicyParametrization;
 import org.mule.runtime.deployment.model.api.application.Application;
 import org.mule.runtime.deployment.model.api.policy.PolicyTemplate;
@@ -21,8 +23,10 @@ public interface PolicyInstanceProviderFactory {
    *
    * @param application application when the policy is applied. Non null
    * @param policyTemplate template of the policy being applied. Non null.
-   * @param parametrization parameters used to configure the template. Non null/
+   * @param parametrization parameters used to configure the template. Non null.
+   * @param muleContextListener listener to be used during the creation of a the policy's {@link MuleContext}
    * @return
    */
-  ApplicationPolicyInstance create(Application application, PolicyTemplate policyTemplate, PolicyParametrization parametrization);
+  ApplicationPolicyInstance create(Application application, PolicyTemplate policyTemplate, PolicyParametrization parametrization,
+                                   MuleContextListener muleContextListener);
 }

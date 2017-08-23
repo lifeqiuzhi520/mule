@@ -8,6 +8,8 @@
 package org.mule.runtime.module.deployment.impl.internal.policy;
 
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
+
+import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.PolicyParametrization;
 import org.mule.runtime.deployment.model.api.application.Application;
 import org.mule.runtime.deployment.model.api.policy.PolicyTemplate;
@@ -44,10 +46,10 @@ public class DefaultPolicyInstanceProviderFactory implements PolicyInstanceProvi
 
   @Override
   public ApplicationPolicyInstance create(Application application, PolicyTemplate policyTemplate,
-                                          PolicyParametrization parametrization) {
+                                          PolicyParametrization parametrization, MuleContextListener muleContextListener) {
     return new DefaultApplicationPolicyInstance(application, policyTemplate, parametrization, serviceRepository,
                                                 classLoaderRepository, policyTemplate.getArtifactPlugins(),
-                                                extensionModelLoaderRepository);
+                                                extensionModelLoaderRepository, muleContextListener);
   }
 
 }

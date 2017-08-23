@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mule.runtime.module.deployment.impl.internal.application.MuleApplicationPolicyProvider.createPolicyRegistrationError;
 
+import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.Policy;
 import org.mule.runtime.core.api.policy.PolicyParametrization;
 import org.mule.runtime.core.api.policy.PolicyPointcut;
@@ -96,10 +97,10 @@ public class MuleApplicationPolicyProviderTestCase extends AbstractMuleTestCase 
     when(applicationPolicyInstance2.getOperationPolicy()).thenReturn(of(policy2));
     when(applicationPolicyInstance2.getSourcePolicy()).thenReturn(of(policy2));
 
-    when(policyInstanceProviderFactory.create(application, policyTemplate, parametrization1)).thenReturn(
-                                                                                                         applicationPolicyInstance1);
-    when(policyInstanceProviderFactory.create(application, policyTemplate, parametrization2)).thenReturn(
-                                                                                                         applicationPolicyInstance2);
+    when(policyInstanceProviderFactory.create(application, policyTemplate, parametrization1, null)).thenReturn(
+                                                                                                               applicationPolicyInstance1);
+    when(policyInstanceProviderFactory.create(application, policyTemplate, parametrization2, null)).thenReturn(
+                                                                                                               applicationPolicyInstance2);
 
     policyTemplateDescriptor.setBundleDescriptor(new BundleDescriptor.Builder().setArtifactId(POLICY_NAME).setGroupId("test")
         .setVersion("1.0").build());
@@ -348,5 +349,17 @@ public class MuleApplicationPolicyProviderTestCase extends AbstractMuleTestCase 
     expectedException.expectCause(isA(IllegalArgumentException.class));
 
     policyProvider.addPolicy(policyTemplateDescriptor, parametrization1);
+  }
+
+  @Test
+  public void addPolicyWithMuleContextListener() throws Exception {
+    MuleContextListener listener = mock(MuleContextListener.class);
+    when(policyInstanceProviderFactory.create(application, policyTemplate, parametrization1, listener)).thenReturn(
+                                                                                                                   applicationPolicyInstance1);
+
+    policyProvider.setPolicyContextListener(listener);
+    policyProvider.addPolicy(policyTemplateDescriptor, parametrization1);
+
+    verify(policyInstanceProviderFactory.create(application, policyTemplate, parametrization1, listener));
   }
 }

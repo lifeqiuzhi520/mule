@@ -7,6 +7,8 @@
 
 package org.mule.runtime.deployment.model.api.application;
 
+import org.mule.runtime.core.api.MuleContext;
+import org.mule.runtime.core.api.context.notification.MuleContextListener;
 import org.mule.runtime.core.api.policy.PolicyParametrization;
 import org.mule.runtime.deployment.model.api.policy.PolicyRegistrationException;
 import org.mule.runtime.deployment.model.api.policy.PolicyTemplateDescriptor;
@@ -29,8 +31,15 @@ public interface ApplicationPolicyManager {
   /**
    * Removes a policy from the application
    *
-   * @param parametrizedPolicyId identifies the parametrized policy. Non empty.?
+   * @param parametrizedPolicyId identifies the parametrized policy. Non empty.
    * @return true is the policy was previously applied to the application, false otherwise
    */
   boolean removePolicy(String parametrizedPolicyId);
+
+  /**
+   * Sets the listener to be used during the creation of a the policy's {@link MuleContext}
+   * 
+   * @param policyContextListener the listener to use
+   */
+  void setPolicyContextListener(MuleContextListener policyContextListener);
 }
