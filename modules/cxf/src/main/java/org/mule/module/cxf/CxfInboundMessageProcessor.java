@@ -41,6 +41,7 @@ import org.mule.module.http.api.HttpConstants;
 import org.mule.module.xml.stax.StaxSource;
 import org.mule.processor.AbstractInterceptingMessageProcessor;
 import org.mule.transformer.types.DataTypeFactory;
+import org.mule.transformer.types.TypedValue;
 import org.mule.transport.NullPayload;
 import org.mule.transport.http.HttpConnector;
 
@@ -320,12 +321,8 @@ public class CxfInboundMessageProcessor extends AbstractInterceptingMessageProce
         m.setExchange(exchange);
         final MuleMessage muleReqMsg = event.getMessage();
         
-        if (muleReqMsg.getInboundProperty(HTTP_CLIENT_SSL_SESSION) != null)
-        {
-            SSLSession session = muleReqMsg.getInboundProperty(HTTP_CLIENT_SSL_SESSION); 
-            TLSSessionInfo tlsinfo = new TLSSessionInfo(session.getCipherSuite(), session, session.getLocalCertificates());
-            m.put(TLSSessionInfo.class, tlsinfo);
-        }
+        propagateSSLSession(m, muleReqMsg);
+
         String method = muleReqMsg.getInboundProperty(HttpConnector.HTTP_METHOD_PROPERTY);
 
         String ct = muleReqMsg.getInboundProperty(HEADER_CONTENT_TYPE);
@@ -445,6 +442,17 @@ public class CxfInboundMessageProcessor extends AbstractInterceptingMessageProce
 
         // get the response event
         return (MuleEvent) exchange.get(CxfConstants.MULE_EVENT);
+    }
+
+    private void propagateSSLSession(final MessageImpl m, final MuleMessage muleReqMsg)
+    {
+        TypedValue sslSession = muleReqMsg.resolveAttributeToPropagate(HTTP_CLIENT_SSL_SESSION);
+        if (sslSession != null)
+        {
+            SSLSession session = (SSLSession) sslSession.getValue(); 
+            TLSSessionInfo tlsinfo = new TLSSessionInfo(session.getCipherSuite(), session, session.getLocalCertificates());
+            m.put(TLSSessionInfo.class, tlsinfo);
+        }
     }
 
     private MuleEvent processResponse(MuleEvent event, Exchange exchange, MuleEvent responseEvent)

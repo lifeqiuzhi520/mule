@@ -93,6 +93,7 @@ public class DefaultMuleMessage implements MuleMessage, ThreadSafeAccess, Deseri
 
     private transient Object payload;
     private transient Object originalPayload;
+    private transient MessageAttributes attributesToPropagate = new DefaultMessageAttributes();
 
     /**
      * If an exception occurs while processing this message an exception payload
@@ -170,6 +171,13 @@ public class DefaultMuleMessage implements MuleMessage, ThreadSafeAccess, Deseri
 
     public DefaultMuleMessage(Object message, Map<String, Object> inboundProperties,
                               Map<String, Object> outboundProperties, Map<String, DataHandler> attachments,
+                              MuleContext muleContext, MessageAttributes attributesToPropagate)
+    {
+        this(message, inboundProperties, outboundProperties, attachments, muleContext, createDefaultDataType(message, muleContext), attributesToPropagate);
+    }
+
+    public DefaultMuleMessage(Object message, Map<String, Object> inboundProperties,
+                              Map<String, Object> outboundProperties, Map<String, DataHandler> attachments,
                               MuleContext muleContext)
     {
         this(message, inboundProperties, outboundProperties, attachments, muleContext, createDefaultDataType(message, muleContext));
@@ -179,6 +187,14 @@ public class DefaultMuleMessage implements MuleMessage, ThreadSafeAccess, Deseri
                               Map<String, Object> outboundProperties, Map<String, DataHandler> attachments,
                               MuleContext muleContext, DataType dataType)
     {
+        this(message, inboundProperties, outboundProperties, attachments,  muleContext, dataType, new DefaultMessageAttributes());
+    }
+    
+    public DefaultMuleMessage(Object message, Map<String, Object> inboundProperties,
+                              Map<String, Object> outboundProperties, Map<String, DataHandler> attachments,
+                              MuleContext muleContext, DataType dataType, MessageAttributes attributes)
+    {
+        this.attributesToPropagate = attributes;
         id =  UUID.getUUID();
         rootId = id;
 
@@ -2227,5 +2243,11 @@ public class DefaultMuleMessage implements MuleMessage, ThreadSafeAccess, Deseri
     protected Map<String, TypedValue> getOrphanFlowVariables()
     {
         return properties.getOrphanFlowVariables();
+    }
+
+    @Override
+    public TypedValue resolveAttributeToPropagate(String name)
+    {
+        return attributesToPropagate.getAttribute(name);
     }
 }

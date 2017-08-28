@@ -17,10 +17,12 @@ import static org.mule.module.http.internal.domain.HttpProtocol.HTTP_1_0;
 import static org.mule.module.http.internal.multipart.HttpPartDataSource.createDataHandlerFrom;
 import org.mule.DefaultMuleEvent;
 import org.mule.DefaultMuleMessage;
+import org.mule.DefaultMessageAttributes;
 import org.mule.api.MuleContext;
 import org.mule.api.MuleEvent;
 import org.mule.api.construct.FlowConstruct;
 import org.mule.endpoint.URIBuilder;
+import org.mule.module.http.api.HttpConstants;
 import org.mule.module.http.api.HttpHeaders;
 import org.mule.module.http.internal.domain.EmptyHttpEntity;
 import org.mule.module.http.internal.domain.HttpEntity;
@@ -29,6 +31,8 @@ import org.mule.module.http.internal.domain.MultipartHttpEntity;
 import org.mule.module.http.internal.domain.request.HttpRequest;
 import org.mule.module.http.internal.domain.request.HttpRequestContext;
 import org.mule.session.DefaultMuleSession;
+import org.mule.transformer.types.DataTypeFactory;
+import org.mule.transformer.types.TypedValue;
 import org.mule.transport.NullPayload;
 import org.mule.util.IOUtils;
 
@@ -41,11 +45,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.activation.DataHandler;
+import javax.net.ssl.SSLSession;
 
 public class HttpRequestToMuleEvent
 {
 
-    public static MuleEvent transform(final HttpRequestContext requestContext, final MuleContext muleContext, final FlowConstruct flowConstruct, Boolean parseRequest, ListenerPath listenerPath) throws HttpRequestParsingException
+    public static MuleEvent transform(final HttpRequestContext requestContext, final MuleContext muleContext, final FlowConstruct flowConstruct, Boolean parseRequest, ListenerPath listenerPath)
+            throws HttpRequestParsingException
     {
         final HttpRequest request = requestContext.getRequest();
         final Collection<String> headerNames = request.getHeaderNames();
@@ -71,7 +77,6 @@ public class HttpRequestToMuleEvent
                                            .setRemoteHostAddress(resolveRemoteHostAddress(requestContext))
                                            .setScheme(requestContext.getScheme())
                                            .setClientCertificate(requestContext.getClientConnection().getClientCertificate())
-                                           .setSslSession(requestContext.getClientConnection().getSslSession())
                                            .addPropertiesTo(inboundProperties);
 
         final Map<String, DataHandler> inboundAttachments = new HashMap<>();
@@ -125,13 +130,24 @@ public class HttpRequestToMuleEvent
             }
         }
 
-        final DefaultMuleMessage defaultMuleMessage = new DefaultMuleMessage(payload, inboundProperties, outboundProperties, inboundAttachments, muleContext);
+        final DefaultMuleMessage defaultMuleMessage = new DefaultMuleMessage(payload, inboundProperties, outboundProperties, inboundAttachments, muleContext, getPropagationAttributes(requestContext));
         return new DefaultMuleEvent(
                 defaultMuleMessage,
                 resolveUri(requestContext),
                 REQUEST_RESPONSE,
                 flowConstruct,
                 new DefaultMuleSession());
+    }
+
+    private static DefaultMessageAttributes getPropagationAttributes(final HttpRequestContext requestContext)
+    {
+        DefaultMessageAttributes sslSessionAttributes = new DefaultMessageAttributes();
+        SSLSession sslSession = requestContext.getClientConnection().getSslSession();
+        if (sslSession != null)
+        {
+            sslSessionAttributes.addAttribute(HttpConstants.RequestProperties.HTTP_CLIENT_SSL_SESSION, new TypedValue(sslSession, DataTypeFactory.createFromObject(sslSession)));
+        }
+        return sslSessionAttributes;
     }
 
     private static URI resolveUri(final HttpRequestContext requestContext)

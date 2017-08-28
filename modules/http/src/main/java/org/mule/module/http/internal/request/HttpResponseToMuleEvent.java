@@ -14,6 +14,8 @@ import static org.mule.module.http.api.HttpHeaders.Names.SET_COOKIE;
 import static org.mule.module.http.api.HttpHeaders.Names.SET_COOKIE2;
 import static org.mule.module.http.api.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED;
 import static org.mule.module.http.internal.request.DefaultHttpRequester.DEFAULT_PAYLOAD_EXPRESSION;
+
+import org.mule.DefaultMessageAttributes;
 import org.mule.DefaultMuleMessage;
 import org.mule.api.MessagingException;
 import org.mule.api.MuleContext;
@@ -110,7 +112,7 @@ public class HttpResponseToMuleEvent
         String requestMessageId = muleEvent.getMessage().getUniqueId();
         String requestMessageRootId = muleEvent.getMessage().getMessageRootId();
         DefaultMuleMessage message = new DefaultMuleMessage(muleEvent.getMessage().getPayload(), inboundProperties,
-                                                     null, inboundAttachments, muleContext, muleEvent.getMessage().getDataType());
+                                                     null, inboundAttachments, muleContext, muleEvent.getMessage().getDataType(), new DefaultMessageAttributes());
 
         if (encoding != null)
         {

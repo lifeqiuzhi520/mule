@@ -6,10 +6,12 @@
  */
 package org.mule.api;
 
+import org.mule.MessageAttributes;
 import org.mule.api.transformer.DataType;
 import org.mule.api.transformer.Transformer;
 import org.mule.api.transformer.TransformerException;
 import org.mule.api.transport.PropertyScope;
+import org.mule.transformer.types.TypedValue;
 
 import java.io.Serializable;
 import java.util.List;
@@ -821,4 +823,11 @@ public interface MuleMessage extends Serializable
      * {@link org.mule.api.transport.PropertyScope#OUTBOUND}.
      */
     void clearAttachments();
+    
+    /**
+     * resolves the propagation attribute corrsponding to the name
+     * 
+     * @return propagation attribute 
+     */
+    TypedValue resolveAttributeToPropagate(String name);
 }
