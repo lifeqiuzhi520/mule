@@ -27,6 +27,7 @@ import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.MULE
 import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.MULE_PROPERTY_IDENTIFIER;
 import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.NAME_ATTRIBUTE;
 import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.OBJECT_IDENTIFIER;
+import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.RAISE_ERROR_IDENTIFIER;
 import static org.mule.runtime.config.spring.api.dsl.model.ApplicationModel.SECURITY_MANAGER_IDENTIFIER;
 import static org.mule.runtime.config.spring.internal.dsl.spring.CommonBeanDefinitionCreator.areMatchingTypes;
 import static org.mule.runtime.config.spring.internal.dsl.spring.ComponentModelHelper.addAnnotation;
@@ -38,6 +39,7 @@ import static org.mule.runtime.core.api.config.MuleProperties.OBJECT_EXPRESSION_
 import static org.mule.runtime.core.internal.component.ComponentAnnotations.ANNOTATION_NAME;
 import static org.mule.runtime.core.internal.component.ComponentAnnotations.ANNOTATION_PARAMETERS;
 import static org.mule.runtime.core.internal.exception.ErrorMapping.ANNOTATION_ERROR_MAPPINGS;
+import static org.mule.runtime.internal.dsl.DslConstants.CORE_PREFIX;
 
 import org.mule.runtime.api.component.ComponentIdentifier;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -180,6 +182,7 @@ public class BeanDefinitionFactory {
     // how core constructs are processed.
     processMuleConfiguration(componentModel, registry);
     processMuleSecurityManager(componentModel, registry);
+    processRaiseError(componentModel);
 
     componentBuildingDefinitionRegistry.getBuildingDefinition(componentModel.getIdentifier())
         .ifPresent(componentBuildingDefinition -> {
@@ -195,7 +198,6 @@ public class BeanDefinitionFactory {
               addAnnotation(ANNOTATION_ERROR_MAPPINGS, errorMappingComponents.stream().map(innerComponent -> {
                 Map<String, String> parameters = innerComponent.getParameters();
                 ComponentIdentifier source = buildFromStringRepresentation(parameters.get(SOURCE_TYPE));
-                ComponentIdentifier target = buildFromStringRepresentation(parameters.get(TARGET_TYPE));
 
                 ErrorType errorType = errorTypeRepository
                     .lookupErrorType(source)
@@ -203,7 +205,7 @@ public class BeanDefinitionFactory {
                                                                                     source)));
 
                 ErrorTypeMatcher errorTypeMatcher = new SingleErrorTypeMatcher(errorType);
-                ErrorType targetValue = resolveErrorType(target);
+                ErrorType targetValue = resolveErrorType(parameters.get(TARGET_TYPE));
                 return new ErrorMapping(errorTypeMatcher, targetValue);
               }).collect(toList()), componentModel);
             }
@@ -216,7 +218,21 @@ public class BeanDefinitionFactory {
     return beanDefinition;
   }
 
-  private ErrorType resolveErrorType(ComponentIdentifier errorIdentifier) {
+  private void processRaiseError(ComponentModel componentModel) {
+    if (componentModel.getIdentifier().equals(RAISE_ERROR_IDENTIFIER)) {
+      resolveErrorType(componentModel.getParameters().get("type"));
+    }
+  }
+
+  private ErrorType resolveErrorType(String identifier) {
+    int separator = identifier.indexOf(":");
+    String resolvedIdentifier;
+    if (separator > 0) {
+      resolvedIdentifier = identifier.toUpperCase();
+    } else {
+      resolvedIdentifier = CORE_PREFIX.toUpperCase() + ":" + identifier.toUpperCase();
+    }
+    ComponentIdentifier errorIdentifier = ComponentIdentifier.buildFromStringRepresentation(resolvedIdentifier);
     Optional<ErrorType> optionalErrorType = errorTypeRepository.lookupErrorType(errorIdentifier);
     return optionalErrorType.isPresent()
         ? optionalErrorType.get()

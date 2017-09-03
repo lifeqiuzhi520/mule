@@ -29,7 +29,6 @@ import static org.mule.runtime.core.api.construct.Flow.INITIAL_STATE_STARTED;
 import static org.mule.runtime.core.api.context.notification.ListenerSubscriptionPair.ANY_SELECTOR_STRING;
 import static org.mule.runtime.core.api.retry.policy.SimpleRetryPolicyTemplate.RETRY_COUNT_FOREVER;
 import static org.mule.runtime.core.api.transaction.MuleTransactionConfig.ACTION_INDIFFERENT_STRING;
-import static org.mule.runtime.core.privileged.routing.outbound.AbstractOutboundRouter.DEFAULT_FAILURE_EXPRESSION;
 import static org.mule.runtime.dsl.api.component.AttributeDefinition.Builder.fromChildCollectionConfiguration;
 import static org.mule.runtime.dsl.api.component.AttributeDefinition.Builder.fromChildConfiguration;
 import static org.mule.runtime.dsl.api.component.AttributeDefinition.Builder.fromChildMapConfiguration;
@@ -61,7 +60,6 @@ import static org.mule.runtime.internal.dsl.DslConstants.RECONNECTION_ELEMENT_ID
 import static org.mule.runtime.internal.dsl.DslConstants.RECONNECT_ELEMENT_IDENTIFIER;
 import static org.mule.runtime.internal.dsl.DslConstants.RECONNECT_FOREVER_ELEMENT_IDENTIFIER;
 import static org.mule.runtime.internal.dsl.DslConstants.REDELIVERY_POLICY_ELEMENT_IDENTIFIER;
-
 import org.mule.runtime.api.config.PoolingProfile;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.tx.TransactionType;
@@ -107,6 +105,7 @@ import org.mule.runtime.core.api.processor.AnnotatedProcessor;
 import org.mule.runtime.core.api.processor.LoggerMessageProcessor;
 import org.mule.runtime.core.api.processor.MessageProcessorChain;
 import org.mule.runtime.core.api.processor.Processor;
+import org.mule.runtime.core.api.processor.RaiseErrorMessageProcessor;
 import org.mule.runtime.core.api.retry.RetryNotifier;
 import org.mule.runtime.core.api.retry.policy.RetryPolicyTemplate;
 import org.mule.runtime.core.api.routing.ForkJoinStrategyFactory;
@@ -249,6 +248,7 @@ public class CoreComponentBuildingDefinitionProvider implements ComponentBuildin
   private static final String TX_ACTION = "transactionalAction";
   private static final String TX_TYPE = "transactionType";
   private static final String LOG_EXCEPTION = "logException";
+  private static final String RAISE_ERROR = "raise-error";
 
   private static final Class<?> MESSAGE_PROCESSOR_CLASS = Processor.class;
 
@@ -721,6 +721,11 @@ public class CoreComponentBuildingDefinitionProvider implements ComponentBuildin
             .withDefaultValue(valueOf(DEFAULT_POOL_INITIALISATION_POLICY)).build())
         .withSetterParameterDefinition("disabled", fromSimpleParameter("disabled").build())
         .build());
+
+    componentBuildingDefinitions
+        .add(baseDefinition.withIdentifier(RAISE_ERROR).withTypeDefinition(fromType(RaiseErrorMessageProcessor.class))
+            .withSetterParameterDefinition("type", fromSimpleParameter("type").build())
+            .withSetterParameterDefinition("message", fromSimpleParameter("message").build()).build());
 
     componentBuildingDefinitions.addAll(getStreamingDefinitions());
     componentBuildingDefinitions.addAll(getIdempotentValidatorsDefinitions());
