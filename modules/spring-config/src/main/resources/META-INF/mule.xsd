@@ -3046,7 +3046,7 @@
     <xsd:element name="raise-error" type="raiseErrorType" substitutionGroup="abstract-message-processor">
         <xsd:annotation>
             <xsd:documentation>
-                Processor that throws an error with the specified type and message.
+                Throws an error with the specified type and message.
             </xsd:documentation>
         </xsd:annotation>
     </xsd:element>
