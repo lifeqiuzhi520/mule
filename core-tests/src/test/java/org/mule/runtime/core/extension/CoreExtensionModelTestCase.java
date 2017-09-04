@@ -216,7 +216,6 @@ public class CoreExtensionModelTestCase extends AbstractMuleContextTestCase {
     assertThat(paramModels.get(2).getExpressionSupport(), is(NOT_SUPPORTED));
     assertThat(paramModels.get(2).getType(), instanceOf(StringType.class));
     assertThat(paramModels.get(2).isRequired(), is(false));
-
   }
 
   @Test
@@ -327,9 +326,6 @@ public class CoreExtensionModelTestCase extends AbstractMuleContextTestCase {
     assertThat(filterModel.getAllParameterModels().get(3).getElementReferences().get(0).getNamespace(), is("os"));
     assertThat(filterModel.getAllParameterModels().get(3).getElementReferences().get(0).getType(),
                is(OBJECT_STORE));
-
-
-
   }
 
   @Test
