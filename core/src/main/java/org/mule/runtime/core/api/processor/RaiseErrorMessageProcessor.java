@@ -31,7 +31,7 @@ public class RaiseErrorMessageProcessor extends AbstractAnnotatedObject implemen
 
   private static final String ERROR_MESSAGE = "An error occurred.";
 
-  private AttributeEvaluator messageEvaluator = new AttributeEvaluator(ERROR_MESSAGE, STRING);
+  private AttributeEvaluator descriptionEvaluator = new AttributeEvaluator(ERROR_MESSAGE, STRING);
   private String typeId;
   private ErrorType errorType;
 
@@ -42,12 +42,12 @@ public class RaiseErrorMessageProcessor extends AbstractAnnotatedObject implemen
   public void initialise() throws InitialisationException {
     errorType = muleContext.getErrorTypeRepository().lookupErrorType(buildFromStringRepresentation(typeId)).get();
     ExtendedExpressionManager expressionManager = muleContext.getExpressionManager();
-    messageEvaluator.initialize(expressionManager);
+    descriptionEvaluator.initialize(expressionManager);
   }
 
   @Override
   public InternalEvent process(InternalEvent event) throws MuleException {
-    String message = messageEvaluator.resolveValue(event);
+    String message = descriptionEvaluator.resolveValue(event);
     throw new TypedException(new DefaultMuleException(message), errorType);
   }
 
@@ -55,8 +55,8 @@ public class RaiseErrorMessageProcessor extends AbstractAnnotatedObject implemen
     this.typeId = type;
   }
 
-  public void setMessage(String message) {
-    this.messageEvaluator = new AttributeEvaluator(message, STRING);
+  public void setDescription(String description) {
+    this.descriptionEvaluator = new AttributeEvaluator(description, STRING);
   }
 
 }

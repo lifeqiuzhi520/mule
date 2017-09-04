@@ -725,7 +725,7 @@ public class CoreComponentBuildingDefinitionProvider implements ComponentBuildin
     componentBuildingDefinitions
         .add(baseDefinition.withIdentifier(RAISE_ERROR).withTypeDefinition(fromType(RaiseErrorMessageProcessor.class))
             .withSetterParameterDefinition("type", fromSimpleParameter("type").build())
-            .withSetterParameterDefinition("message", fromSimpleParameter("message").build()).build());
+            .withSetterParameterDefinition("description", fromSimpleParameter("description").build()).build());
 
     componentBuildingDefinitions.addAll(getStreamingDefinitions());
     componentBuildingDefinitions.addAll(getIdempotentValidatorsDefinitions());

@@ -3057,14 +3057,14 @@
                 <xsd:attribute name="type" type="errorIdentifierType" use="required">
                     <xsd:annotation>
                         <xsd:documentation>
-                            The error to raise.
+                            The error type to raise.
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="message" type="xsd:string" use="optional">
+                <xsd:attribute name="description" type="xsd:string" use="optional">
                     <xsd:annotation>
                         <xsd:documentation>
-                            The message of this error. If available, will match the error description fields.
+                            The description of this error.
                         </xsd:documentation>
                     </xsd:annotation>
                 </xsd:attribute>

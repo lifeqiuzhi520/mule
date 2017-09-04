@@ -228,6 +228,11 @@ public class BeanDefinitionFactory {
     int separator = identifier.indexOf(":");
     String resolvedIdentifier;
     if (separator > 0) {
+      // TODO: MULE-13464 - Allow the definition of custom error types in an app/SC
+      if (!CORE_PREFIX.equalsIgnoreCase(identifier.substring(0, separator))) {
+        throw new MuleRuntimeException(createStaticMessage(format(
+          "Only synthetic error types can be raised. Offending type is '%s'.", identifier)));
+      }
       resolvedIdentifier = identifier.toUpperCase();
     } else {
       resolvedIdentifier = CORE_PREFIX.toUpperCase() + ":" + identifier.toUpperCase();

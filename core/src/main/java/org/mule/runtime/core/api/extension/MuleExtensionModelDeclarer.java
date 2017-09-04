@@ -289,12 +289,12 @@ class MuleExtensionModelDeclarer {
                         "SERVER_SECURITY", "ROUTING", "CONNECTIVITY", "RETRY_EXHAUSTED", "TIMEOUT")
                 .build())
       .withExpressionSupport(NOT_SUPPORTED)
-      .describedAs("The error to raise.");
+      .describedAs("The error type to raise.");
 
     raiseError.onDefaultParameterGroup()
-      .withOptionalParameter("message")
+      .withOptionalParameter("description")
       .ofType(typeLoader.load(String.class))
-      .describedAs("The message of this error. If available, will match the error description fields.");
+      .describedAs("The description of this error.");
   }
 
   private void declareForEach(ExtensionDeclarer extensionDeclarer, ClassTypeLoader typeLoader) {
