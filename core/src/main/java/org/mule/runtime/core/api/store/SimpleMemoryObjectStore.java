@@ -13,6 +13,7 @@ import org.mule.runtime.api.store.ObjectStoreException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,5 +69,10 @@ public class SimpleMemoryObjectStore<T extends Serializable> extends TemplateObj
   @Override
   public List<String> allKeys() throws ObjectStoreException {
     return new ArrayList<>(map.keySet());
+  }
+
+  @Override
+  public Map<String, T> retrieveAll() throws ObjectStoreException {
+    return new LinkedHashMap<>(map);
   }
 }

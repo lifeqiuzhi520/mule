@@ -8,23 +8,23 @@ package org.mule.runtime.core.api.store;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 import static org.mule.runtime.core.internal.util.store.MuleObjectStoreManager.UNBOUNDED;
-
 import org.mule.runtime.api.store.ObjectAlreadyExistsException;
 import org.mule.runtime.api.store.ObjectDoesNotExistException;
 import org.mule.runtime.api.store.ObjectStoreException;
 import org.mule.runtime.core.api.component.InternalComponent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PartitionedInMemoryObjectStore<T extends Serializable> extends AbstractPartitionableObjectStore<T>
     implements PartitionableExpirableObjectStore<T>, InternalComponent {
@@ -88,6 +88,11 @@ public class PartitionedInMemoryObjectStore<T extends Serializable> extends Abst
   @Override
   public List<String> allKeys(String partitionName) throws ObjectStoreException {
     return new ArrayList<>(getPartition(partitionName).keySet());
+  }
+
+  @Override
+  public Map<String, T> retrieveAll(String partitionName) throws ObjectStoreException {
+    return new LinkedHashMap<>(getPartition(partitionName));
   }
 
   @Override

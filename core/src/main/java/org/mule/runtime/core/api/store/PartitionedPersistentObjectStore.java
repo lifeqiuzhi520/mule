@@ -7,7 +7,6 @@
 package org.mule.runtime.core.api.store;
 
 import static org.slf4j.LoggerFactory.getLogger;
-
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessage;
 import org.mule.runtime.api.store.ObjectStoreException;
@@ -19,8 +18,6 @@ import org.mule.runtime.core.api.util.FileUtils;
 import org.mule.runtime.core.api.util.UUID;
 import org.mule.runtime.core.internal.util.store.PersistentObjectStorePartition;
 
-import org.slf4j.Logger;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +25,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
 
 public class PartitionedPersistentObjectStore<T extends Serializable> extends AbstractPartitionableObjectStore<T>
     implements PartitionableExpirableObjectStore<T>, InternalComponent, MuleContextAware {
@@ -115,6 +114,11 @@ public class PartitionedPersistentObjectStore<T extends Serializable> extends Ab
   @Override
   public List<String> allKeys(String partitionName) throws ObjectStoreException {
     return getPartitionObjectStore(partitionName).allKeys();
+  }
+
+  @Override
+  public Map<String, T> retrieveAll(String partitionName) throws ObjectStoreException {
+    return getPartitionObjectStore(partitionName).retrieveAll();
   }
 
   @Override
